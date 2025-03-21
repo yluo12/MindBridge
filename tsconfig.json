@@ -5,6 +5,9 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noUnusedParameters": true, // Report errors on unused parameters in functions.
+    "noImplicitReturns": true, // check all code paths in a function to ensure they return a value.
+    "noUnusedLocals": true, // Report errors on unused local variables.
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -18,8 +21,10 @@
         "name": "next"
       }
     ],
+    "baseUrl": "src/",
     "paths": {
-      "@/*": ["./src/*"]
+      // "@/*": ["./src/*"]
+      "@/components/*": ["components/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
