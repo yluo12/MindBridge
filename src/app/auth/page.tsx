@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, } from '../../utils/auth';
 import { LOCK_ICON, USER_ICON, GOOGLE_ICON, WARNING_ICON, ERROR_ICON } from '../../../public/Icons/ReactIconsImport';
+import supabase from '../../utils/supabaseClient';
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>('');
@@ -11,6 +13,8 @@ export default function AuthPage() {
   const [pwdError, setPwdError] = useState<string>('');
   const [loginError, setLoginError] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(true);
+
+  const router = useRouter();
 
   const clickHandler = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -38,7 +42,7 @@ export default function AuthPage() {
       } else {
         // handle successful sign-in
         console.log('user info here: ', user);
-        alert('Signed in successfully!');
+        router.push('/');
       }
     } else {
       const { user, error } = await signUpWithEmail(email, password);
@@ -48,6 +52,7 @@ export default function AuthPage() {
       } else {
         // handle successful sign-in
         console.log('user info here: ', user);
+        router.push('/');
         alert('Signed up successfully!'); // redirect to user home page
       }
     }
@@ -85,14 +90,14 @@ export default function AuthPage() {
 
   return (
     <div className='w-screen h-screen bg-gradient-to-r from-ivoryBreeze via-softPink to-deepBlue flex justify-center items-center shadow relative'>
-      <div className='w-[460px] h-[560px] bg-white opacity-65 border border-white rounded-lg '>
+      <div className='w-[460px] h-[540px] bg-white opacity-65 border border-white rounded-lg '>
       </div>
-      <div className='w-[460px] h-[500px] px-8 absolute flex flex-col items-center text-deepBlue'>
+      <div className='w-[460px] h-[540px] px-8 absolute flex flex-col items-center text-deepBlue'>
         <h1 className='font-bold text-2xl mt-10'>{isLogin ? 'Log In' : 'Sign Up'}</h1>
         <form
           className='w-full flex flex-col gap-4 mt-8'>
           {loginError && <div className='bg-red-100 text-sm text-red-400 flex flex-row gap-2 p-2 rounded-lg'>
-            <span>{ERROR_ICON}</span>
+            <span className='self-center'>{ERROR_ICON}</span>
             <span>Either your email address or password is incorrect. Please try again.</span>
           </div>}
           <div className='relative w-full'>
@@ -104,7 +109,7 @@ export default function AuthPage() {
                 setEmailError('');
               }}
               placeholder="Email"
-              className='px-4 py-2 bg-gray-200 rounded-lg w-full'
+              className='px-4 py-2 bg-gray-200 text-gray-500 rounded-lg w-full'
             />
             <span className='absolute text-gray-400 top-3 right-4'>{USER_ICON}</span>
             {getErrors(emailError, 'email')}
@@ -118,7 +123,7 @@ export default function AuthPage() {
                 setPwdError('');
               }}
               placeholder="Password"
-              className='px-4 py-2 bg-gray-200 rounded-lg w-full'
+              className='px-4 py-2 bg-gray-200 text-gray-500 rounded-lg w-full'
             />
             <span className='absolute text-gray-400 top-3 right-4'>{LOCK_ICON}</span>
             {getErrors(pwdError, 'password')}
@@ -136,7 +141,7 @@ export default function AuthPage() {
           </div>
         </form>
         <div className='w-full mt-6 flex flex-col justify-center gap-2 relative'>
-          <span className='text-gray-300 text-sm mx-auto mb-2'>------------------------------ Or ------------------------------</span>
+          <span className='text-gray-300 text-sm mx-auto mb-2'>------------------ Or -----------------</span>
           <button className='bg-white cursor-pointer border border-gray-200 px-4 py-2 rounded-lg shadow hover:bg-gray-100'>Continue with Google</button>
           <span className='absolute top-12 left-18 text-lg'>{GOOGLE_ICON}</span>
         </div>
