@@ -1,5 +1,6 @@
 'use client';
 import { useRouter } from "next/navigation";
+import { Background } from './Background';
 import { HOUSE_ICON, HOSPITAL_ICON, PSYCHIATRY_ICON, THERAPISTS_ICON, MEDICAL_ICON, OUTPATIENT_ICON } from '../../../public/Icons/ReactIconsImport';
 
 export const Categories = () => {
@@ -8,7 +9,7 @@ export const Categories = () => {
   const serviceHandler = (service: string): React.MouseEventHandler<HTMLDivElement> => {
     return (e) => {
       e.preventDefault();
-      router.push(`/resources`);
+      router.push(`/resources?category=${encodeURIComponent(service)}`);
     }
   };
 
@@ -36,25 +37,19 @@ export const Categories = () => {
 
   return (
     <div className="relative w-full h-[60vh] mb-16">
-      <div className="absolute inset-0">
-        <div className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 blur-[120px] opacity-50"></div>
-        <div className="absolute right-0 w-64 h-64 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 blur-[120px] opacity-50"></div>
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 blur-[120px] opacity-50"></div>
-      </div>
+      <Background />
       <div className="flex flex-col justify-center items-center mt-16">
         <h2 className="font-medium text-2xl/7 md:text-2xl lg:text-3xl font-roboto text-deepBlue">Services & Providers</h2>
         <div className="grid grid-rows-2 grid-cols-3 gap-x-36 gap-y-12 h-auto mt-12 text-deepBlue">
-          {services.map((service, index) => {
-            return (
+          {services.map((service, index) => (
               <div key={index}
-                className="flex flex-col items-center justify-center gap-4 border border-gray-400 shadow-lg rounded-lg bg-white hover:bg-gray-100 cursor-pointer w-[180px] h-[180px] z-30"
-                // onClick={serviceHandler(service)}
+                className="flex flex-col items-center justify-center gap-4 border border-gray-300 shadow-lg rounded-lg bg-white hover:bg-gray-100 cursor-pointer w-[180px] h-[180px] z-30"
+                onClick={serviceHandler(service)}
               >
                 <span className='text-4xl'>{getIcon(service)}</span>
                 {service}
               </div>
-            );
-          })}
+          ))}
         </div>
       </div>
     </div>
