@@ -16,3 +16,18 @@ export type ServiceType = {
   specialities: string[];
   image: string;
 };
+
+export type FiltersType = {
+  category: string | null;
+  subcategory: string | null;
+};
+
+export type SelectedFiltersType = {
+  category: string[];
+  subcategory: string[];
+  age: string[];
+  method: string[];
+  gender: string;
+  specialities: string[];
+  [key: string]: string[] | string;
+};

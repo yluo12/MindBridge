@@ -9,7 +9,11 @@ export const Categories = () => {
   const serviceHandler = (service: string): React.MouseEventHandler<HTMLDivElement> => {
     return (e) => {
       e.preventDefault();
-      router.push(`/resources?category=${encodeURIComponent(service)}`);
+      if(service === 'Medi-Cal') {
+        router.push(`/resources?category=${encodeURIComponent(service)}`);
+      } else {
+        router.push(`/resources?subcategory=${encodeURIComponent(service)}`);
+      }
     }
   };
 

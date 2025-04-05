@@ -30,7 +30,7 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   console.log('service: ', service);
   return (
-    <div className="border border-gray-300 bg-white hover:bg-gray-100 cursor-pointer shadow-lg rounded-lg z-50 flex flex-row gap-6 p-3">
+    <div className="border border-gray-300 bg-white hover:bg-gray-100 cursor-pointer shadow-lg rounded-lg z-40 flex flex-row gap-6 p-3">
       <Image
         src={service.image}
         alt={`${service.name} picture`}

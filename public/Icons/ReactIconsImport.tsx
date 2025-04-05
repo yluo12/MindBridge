@@ -13,6 +13,8 @@ import { FaPersonWalkingLuggage } from "react-icons/fa6";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { GrSort } from "react-icons/gr";
 import { IoLocationOutline } from "react-icons/io5";
+import { IoIosArrowUp } from "react-icons/io";
+import { IoIosArrowDown } from "react-icons/io";
 
 export const HOUSE_ICON = <FaHouseChimneyMedical />;
 export const USER_ICON = <FaUserCircle />;
@@ -29,3 +31,5 @@ export const OUTPATIENT_ICON = <FaPersonWalkingLuggage />;
 export const MAP_ICON = <FaMapMarkedAlt />;
 export const SORT_ICON = <GrSort />;
 export const LOCATION_ICON = <IoLocationOutline />;
+export const UPPERARROW_ICON = <IoIosArrowUp />;
+export const DOWNARROW_ICON = <IoIosArrowDown />;
