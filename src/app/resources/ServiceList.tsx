@@ -45,13 +45,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           {service.subcategory?.map((tag, index) => (
             <span
               key={index}
-              className='text-sm py-0.5 px-1.5 bg-rose-200 rounded-lg'
+              className='text-sm py-0.5 px-1.5 bg-rose-200 rounded-lg shadow'
             >
               {tag}
             </span>
           ))}
           <span
-            className='text-sm py-0.5 px-1.5 bg-yellow-100 rounded-lg'
+            className='text-sm py-0.5 px-1.5 bg-yellow-100 rounded-lg shadow'
           >
             {service.gender}
           </span>

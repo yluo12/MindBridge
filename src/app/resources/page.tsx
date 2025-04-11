@@ -1,24 +1,37 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { SORT_ICON, MAP_ICON, CLOSE_ICON } from '../../../public/Icons/ReactIconsImport';
 import { Nav } from '@/components/Nav';
 import { ServiceList } from './ServiceList';
 import { FilterModal } from './FilterModal';
 import { Background } from '@/components/Background';
 import { getServices } from '../../utils/supabaseService';
-import { ServiceType, FiltersType, SelectedFiltersType } from '../../types/types';
+import { ServiceType, FiltersType, SelectedFiltersType, UpdateRouteFunction } from '../../types/types';
 
 interface FilterBubbleProps {
   type: string;
-  filter: string | null;
-}
+  values: string[] | string | null;
+  updateRoute: (column: string) => void;
+};
+
+const getFilterBubble = (type: string, values: string | string[], updateRoute: UpdateRouteFunction) => {
+  if (!values || !values.length) {
+    return null;
+  }
+  return <FilterBubble type={type} values={values} updateRoute={updateRoute}/>
+};
 
 export default function Resources() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const category = searchParams.get('category');
-  const subcategory = searchParams.get('subcategory');
+  const category = searchParams.getAll('category');
+  const subcategory = searchParams.getAll('subcategory');
+  const method = searchParams.getAll('method');
+  const age = searchParams.getAll('age');
+  const gender = searchParams.getAll('gender');
+  const specialities = searchParams.getAll('specialities');
 
   const [filterModal, setFilterModal] = useState(false); // control the visibility of the filter modal
   const [sortHover, setSortHover] = useState(false); // control the visibility of the sort popup
@@ -34,18 +47,95 @@ export default function Resources() {
     gender: '',
     specialities: []
   });
+  const [appliedFilters, setAppliedFilters] = useState<SelectedFiltersType>({
+    category: [],
+    subcategory:[],
+    age: [],
+    method: [],
+    gender: '',
+    specialities: []
+  });
 
+  // select or deselect the values clicked in filterModal
   const selectFilter = (column: keyof SelectedFiltersType, value: string) => {
-    const selectedValues = selectedFilters[column];
-    if (column === 'Gender') {
-      selectedFilters.gender = selectedFilters.gender === value ? '' : value;
-    } else {
-      if (selectedValues.includes(value)) {
-        console.log('pop value');
-      } else {
-        console.log('add value');
+    setSelectedFilters((prev) => {
+      const currentValue = prev[column];
+      // For 'gender' (a string)
+      if (column === 'gender' && typeof currentValue === 'string') {
+        return {
+          ...prev,
+          gender: currentValue === value ? '' : value,
+        };
       }
-    }
+      // For array-type filters
+      if (Array.isArray(currentValue)) {
+        const isSelected = currentValue.includes(value);
+        const updatedArray = isSelected
+          ? currentValue.filter((v) => v !== value) // remove
+          : [...currentValue, value]; // add
+        return {
+          ...prev,
+          [column]: updatedArray,
+        };
+      }
+      return prev;
+    });
+  };
+
+  const routePage = () => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+    Object.entries(selectedFilters).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        // If the filter is an array, append each value
+        value.forEach((item) => {
+          if (item && !currentParams.getAll(key).includes(item)) {
+            currentParams.append(key, item);  // Add only if it's not already in the query
+          }
+        });
+      } else if (value) {
+        // If it's a string, just append the value
+        if (!currentParams.has(key)) {
+          currentParams.set(key, value);  // Use set to ensure only one value
+        }
+      }
+    });
+    setAppliedFilters(selectedFilters);
+    router.push(`/resources?${currentParams.toString()}`);
+  };
+
+  const updateRouteFromBubble = (column: string) =>{
+    const currentParams = new URLSearchParams(searchParams.toString());
+    const columnLowerCase = column.toLowerCase();
+    setSelectedFilters((prev) => {
+      if (columnLowerCase === 'gender') {
+        return {
+          ...prev,
+          [columnLowerCase]: ''
+        };
+      } else {
+        return {
+          ...prev,
+          [columnLowerCase]: []
+        };
+      }
+      });
+    // Remove the 'subcategory' parameter
+    currentParams.delete(columnLowerCase);
+
+    // Update the URL without reloading the page
+    router.push(`/resources?${currentParams.toString()}`);
+  };
+
+  const resetFilters = () => {
+    setSelectedFilters({
+      category: [],
+      subcategory:[],
+      age: [],
+      method: [],
+      gender: '',
+      specialities: []
+    });
+    router.push(`/resources`);
   };
 
   const closeFilterModal = () => {
@@ -53,9 +143,19 @@ export default function Resources() {
   }
 
   useEffect(() => {
+    setAppliedFilters((prev) => ({
+      ...prev,
+      category: category ? category : [],
+      subcategory: subcategory ? subcategory : [],
+    }));
+    setSelectedFilters((prev) => ({
+      ...prev,
+      category: category ? category : [],
+      subcategory: subcategory ? subcategory : [],
+    }));
     const filters: FiltersType = {
-      category: category,
-      subcategory: subcategory,
+      'category': category,
+      'subcategory': subcategory,
     };
     const fetchData = async () => {
       setLoadingServices(true);
@@ -63,7 +163,7 @@ export default function Resources() {
       setLoadingServices(false);
     };
     fetchData();
-  }, [category, subcategory]);
+  }, []);
 
   return (
     <div className='mt-36 relative'>
@@ -88,7 +188,13 @@ export default function Resources() {
             }
             {filterModal && (
               <div className="fixed inset-0 flex items-center h-screen z-50">
-                <FilterModal onClose={closeFilterModal}/>
+                <FilterModal
+                  onClose={closeFilterModal}
+                  selectFilter={selectFilter}
+                  selectedFilters={selectedFilters}
+                  onReset={resetFilters}
+                  routePage={routePage}
+                />
               </div>
             )}
           </div>
@@ -114,9 +220,13 @@ export default function Resources() {
           </span>
         </div>
 
-        <div className='mb-8'>
-          {category !== null && <FilterBubble type={'Category'} filter={category}/>}
-          {subcategory !== null && <FilterBubble type={'Subcategory'} filter={subcategory}/>}
+        <div className='mb-8 flex flex-row gap-4'>
+          {getFilterBubble('Method', method, updateRouteFromBubble)}
+          {getFilterBubble('Category', category, updateRouteFromBubble)}
+          {getFilterBubble('Subcategory', subcategory, updateRouteFromBubble)}
+          {getFilterBubble('Age', age, updateRouteFromBubble)}
+          {getFilterBubble('Gender', gender, updateRouteFromBubble)}
+          {getFilterBubble('Specialities', specialities, updateRouteFromBubble)}
         </div>
         {services.length ?
           <ServiceList
@@ -135,16 +245,16 @@ export default function Resources() {
   );
 };
 
-const FilterBubble: React.FC<FilterBubbleProps> = ({ type, filter }) => {
+const FilterBubble: React.FC<FilterBubbleProps> = ({ type, values, updateRoute }) => {
 
   return (
     <div
       className='flex flex-row items-center gap-2 z-20 px-1.5 py-1 text-gray-400 text-sm bg-white border border-gray-200 w-fit rounded-lg relative shadow'
     >
-      {`${type}: ${filter}`}
+      {`${type}: ${values}`}
       <span
         className='cursor-pointer hover:text-gray-500 text-lg'
-        onClick={() => {}}
+        onClick={() => {updateRoute(type)}}
       >
         {CLOSE_ICON}
       </span>

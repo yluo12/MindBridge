@@ -18,8 +18,8 @@ export type ServiceType = {
 };
 
 export type FiltersType = {
-  category: string | null;
-  subcategory: string | null;
+  category: string[] | null;
+  subcategory: string[] | null;
 };
 
 export type SelectedFiltersType = {
@@ -31,3 +31,5 @@ export type SelectedFiltersType = {
   specialities: string[];
   [key: string]: string[] | string;
 };
+
+export type UpdateRouteFunction = (type: string) => void;
